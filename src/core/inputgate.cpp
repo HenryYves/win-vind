@@ -59,7 +59,7 @@ namespace
         }
 
         try {
-            return std::stoull(setting, nullptr, 0) \
+            return std::stoull(setting, nullptr, 0)
                 == static_cast<unsigned long long>(extra_info) ;
         }
         catch(const std::exception&) {
@@ -187,12 +187,12 @@ namespace vind
 
             // win-vind tags its own synthesized key events; never feed them
             // back into the input pipeline.
-            const bool self_injected = injected \
+            const bool self_injected = injected
                 && kbd->dwExtraInfo == SELF_INJECTED_SIG ;
 
             // Injected events from other programs (e.g. game streaming that
             // uses SendInput) are ignored unless the user opts in.
-            const bool accepted_injected = injected && !self_injected \
+            const bool accepted_injected = injected && !self_injected
                 && accepts_injected_event(kbd->dwExtraInfo) ;
 
             if(!injected || accepted_injected) {

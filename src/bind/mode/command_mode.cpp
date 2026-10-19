@@ -119,7 +119,7 @@ namespace vind
                 // Optional feedback for leaving the command mode without
                 // executing anything.
                 auto& settable = core::SetTable::get_instance() ;
-                const auto& cancel_suffix = \
+                const auto& cancel_suffix =
                     settable.get("cmd_cancel").get<std::string>() ;
                 if(!cancel_suffix.empty()) {
                     opt::VCmdLine::print(
@@ -205,7 +205,7 @@ namespace vind
                     // Optional feedback: show the executed command with a
                     // user-defined suffix (e.g. ":exit -done").
                     auto& settable = core::SetTable::get_instance() ;
-                    const auto& done_suffix = \
+                    const auto& done_suffix =
                         settable.get("cmd_done").get<std::string>() ;
                     if(!done_suffix.empty()) {
                         opt::VCmdLine::print(

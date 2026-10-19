@@ -75,8 +75,8 @@ namespace vind
                 // drawn over the old text and the old tail remains visible.
                 auto old_str = static_cast<std::string>(msg_) ;
                 auto new_str = static_cast<std::string>(str) ;
-                auto appended = !old_str.empty() \
-                    && new_str.size() >= old_str.size() \
+                auto appended = !old_str.empty()
+                    && new_str.size() >= old_str.size()
                     && new_str.compare(0, old_str.size(), old_str) == 0 ;
                 auto must_refresh = !old_str.empty() && !appended ;
 

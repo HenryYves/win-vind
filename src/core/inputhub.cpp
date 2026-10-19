@@ -155,7 +155,7 @@ namespace vind
             // characters; parsing them there only grows the count buffer
             // until std::stoi overflows.
             const bool count_enabled = (
-                    mode == Mode::GUI_NORMAL || mode == Mode::GUI_VISUAL \
+                    mode == Mode::GUI_NORMAL || mode == Mode::GUI_VISUAL
                     || mode == Mode::EDI_NORMAL || mode == Mode::EDI_VISUAL) ;
 
             if(parse_count && count_enabled && solver->max_history_size() == 0) {
@@ -164,7 +164,7 @@ namespace vind
                 auto new_count = extract_numbers(
                         *input, pimpl->count_.size() > 0) ;
                 if(!new_count.empty()) {
-                    if(pimpl->count_.size() + new_count.size() \
+                    if(pimpl->count_.size() + new_count.size()
                             <= MAX_COUNT_DIGITS) {
                         pimpl->count_ += new_count ;
                     }

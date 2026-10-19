@@ -1111,7 +1111,7 @@ namespace fluent_tray
             // shell flyout (e.g. the Windows 11 hidden-icons overflow).
             auto fg_hwnd = GetForegroundWindow() ;
             if(fg_hwnd != hwnd_) {
-                auto fg_thread = fg_hwnd \
+                auto fg_thread = fg_hwnd
                     ? GetWindowThreadProcessId(fg_hwnd, nullptr) : 0 ;
                 auto my_thread = GetCurrentThreadId() ;
                 if(fg_thread && fg_thread != my_thread) {

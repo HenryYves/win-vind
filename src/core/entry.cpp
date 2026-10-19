@@ -455,7 +455,7 @@ namespace vind
                     // Defer the termination briefly so the virtual command
                     // line can be drawn once more (e.g. the command result).
                     pimpl->pending_exit_ = true ;
-                    pimpl->exit_at_ = std::chrono::steady_clock::now() \
+                    pimpl->exit_at_ = std::chrono::steady_clock::now()
                         + std::chrono::milliseconds(400) ;
                 }
             }
