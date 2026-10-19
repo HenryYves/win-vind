@@ -1079,44 +1079,55 @@ namespace fluent_tray
                 return false ;
             }
 
-            auto screen_width = GetSystemMetrics(SM_CXSCREEN) ;
-            auto screen_height = GetSystemMetrics(SM_CYSCREEN) ;
-
-            auto work_width = work_rect.right - work_rect.left ;
-            auto work_height = work_rect.bottom - work_rect.top ;
-
-            auto taskbar_width = screen_width - work_width ;
-            auto taskbar_height = screen_height - work_height ;
-
+            // Anchor the menu at the cursor like a native context menu: the
+            // cursor is one corner of the popup, and the popup flips to stay
+            // inside the work area.
             auto pos = cursor_pos ;
-            if(taskbar_width == 0) {  // horizontal taskbar
-                if(cursor_pos.y <= taskbar_height) {
-                    //top
-                    pos.y = taskbar_height ;
-                }
-                else {
-                    //bottom
-                    // add 20% offset
-                    pos.y = screen_height - (popup_height + 12 * taskbar_height / 10) ;
-                }
-                pos.x = cursor_pos.x - popup_width / 2 ;
-            }
-            else {  // vertical taskbar
-                if(pos.x <= taskbar_width) {
-                    //left
-                    pos.x = taskbar_width ;
-                }
-                else {
-                    //right
-                    // add 20% offset
-                    pos.x = popup_width + 12 * taskbar_width / 10 ;
-                }
+            pos.x = cursor_pos.x ;
+            pos.y = cursor_pos.y - popup_height ;
 
-                pos.y = cursor_pos.y - popup_height / 2 ;
+            if(pos.x + popup_width > work_rect.right) {
+                // Flip horizontally: the cursor becomes the right corner.
+                pos.x = cursor_pos.x - popup_width ;
+            }
+            if(pos.y < work_rect.top) {
+                // Flip vertically: the cursor becomes the top corner.
+                pos.y = cursor_pos.y ;
             }
 
+            if(pos.x < work_rect.left) {
+                pos.x = work_rect.left ;
+            }
+            if(pos.x + popup_width > work_rect.right) {
+                pos.x = work_rect.right - popup_width ;
+            }
+            if(pos.y + popup_height > work_rect.bottom) {
+                pos.y = work_rect.bottom - popup_height ;
+            }
+
+            // Become the foreground window before showing the menu. Within the
+            // topmost band the active window is always on top, so a topmost
+            // menu that is not foreground is still stacked below the active
+            // shell flyout (e.g. the Windows 11 hidden-icons overflow).
+            auto fg_hwnd = GetForegroundWindow() ;
+            if(fg_hwnd != hwnd_) {
+                auto fg_thread = fg_hwnd \
+                    ? GetWindowThreadProcessId(fg_hwnd, nullptr) : 0 ;
+                auto my_thread = GetCurrentThreadId() ;
+                if(fg_thread && fg_thread != my_thread) {
+                    AttachThreadInput(my_thread, fg_thread, TRUE) ;
+                    SetForegroundWindow(hwnd_) ;
+                    AttachThreadInput(my_thread, fg_thread, FALSE) ;
+                }
+                else {
+                    SetForegroundWindow(hwnd_) ;
+                }
+            }
+
+            // The overflow area of the taskbar is a topmost window, so the
+            // menu must be topmost too, otherwise it is rendered behind it.
             if(!SetWindowPos(
-                    hwnd_, HWND_TOP,
+                    hwnd_, HWND_TOPMOST,
                     pos.x, pos.y, popup_width, popup_height,
                     SWP_SHOWWINDOW)) {
                 return false ;
@@ -1159,6 +1170,8 @@ namespace fluent_tray
             visible_ = false ;
             select_index_ = -1 ;
             std::fill(status_if_focus.begin(), status_if_focus.end(), false) ;
+            // Release the foreground lock taken when the menu was shown.
+            PostMessageW(hwnd_, WM_NULL, 0, 0) ;
             return true ;
         }
 
