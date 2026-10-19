@@ -111,9 +111,20 @@ namespace vind
             }
 
             void quit_loop() {
+                auto typed = hists_.back()->to_string() ;
                 opt::VCmdLine::reset() ;
                 // Remove the latest history
                 util::remove_from_back(hists_, 1) ;
+
+                // Optional feedback for leaving the command mode without
+                // executing anything.
+                auto& settable = core::SetTable::get_instance() ;
+                const auto& cancel_suffix = \
+                    settable.get("cmd_cancel").get<std::string>() ;
+                if(!cancel_suffix.empty()) {
+                    opt::VCmdLine::print(
+                        opt::GeneralMessage(":" + typed + " " + cancel_suffix)) ;
+                }
             }
 
             bool backspace() {
