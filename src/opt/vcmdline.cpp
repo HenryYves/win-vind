@@ -347,6 +347,12 @@ namespace vind
 
         void VCmdLine::refresh() {
             util::refresh_display(NULL) ;
+            // The text is painted directly onto the screen, so the windows
+            // below must repaint before the next message is drawn, otherwise
+            // the new text is drawn over the old one.
+            RedrawWindow(
+                NULL, NULL, NULL,
+                RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW) ;
         }
 
         void VCmdLine::clear() {

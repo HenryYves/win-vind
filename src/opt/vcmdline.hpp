@@ -70,7 +70,15 @@ namespace vind
                     return ;
                 }
 
-                auto must_refresh = msg_.size() > str.size() ;
+                // Erase the previous message unless the new one only extends
+                // it (typing more characters). Otherwise a new message is
+                // drawn over the old text and the old tail remains visible.
+                auto old_str = static_cast<std::string>(msg_) ;
+                auto new_str = static_cast<std::string>(str) ;
+                auto appended = !old_str.empty() \
+                    && new_str.size() >= old_str.size() \
+                    && new_str.compare(0, old_str.size(), old_str) == 0 ;
+                auto must_refresh = !old_str.empty() && !appended ;
 
                 msg_ = std::forward<T>(str) ;
 
