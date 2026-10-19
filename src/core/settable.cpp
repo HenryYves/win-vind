@@ -23,6 +23,7 @@ namespace vind
             Param("charcache", false),
 
             Param("cmd_bgcolor", "323232"),
+            Param("cmd_done", ""),
             Param("cmd_fadeout", 5),
             Param("cmd_fontcolor", "c8c8c8"),
             Param("cmd_fontextra", 1),

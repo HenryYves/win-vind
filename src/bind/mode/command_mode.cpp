@@ -190,6 +190,17 @@ namespace vind
                 if(!called) {
                     opt::VCmdLine::print(opt::ErrorMessage("E: Not a command")) ;
                 }
+                else {
+                    // Optional feedback: show the executed command with a
+                    // user-defined suffix (e.g. ":exit -done").
+                    auto& settable = core::SetTable::get_instance() ;
+                    const auto& done_suffix = \
+                        settable.get("cmd_done").get<std::string>() ;
+                    if(!done_suffix.empty()) {
+                        opt::VCmdLine::print(
+                            opt::GeneralMessage(":" + args + " " + done_suffix)) ;
+                    }
+                }
                 return result ;
             }
 

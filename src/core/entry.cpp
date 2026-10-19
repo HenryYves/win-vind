@@ -96,6 +96,11 @@ namespace vind
         struct VindEntry::Impl {
             std::function<void()> exit_ ;
 
+            // Exit is deferred for a moment so a result message printed by
+            // the command mode can be drawn before the process terminates.
+            bool pending_exit_ ;
+            std::chrono::steady_clock::time_point exit_at_ ;
+
             // They are used for process communication between multiple win-vind.
             HANDLE map_ ;
             std::string memname_ ;
@@ -114,6 +119,8 @@ namespace vind
             template <typename ExitFuncType, typename String>
             Impl(ExitFuncType&& exitfunc, String&& memname, std::size_t memsize)
             : exit_(std::forward<ExitFuncType>(exitfunc)),
+              pending_exit_(false),
+              exit_at_(),
               map_(NULL),
               memname_(std::forward<String>(memname)),
               memsize_(memsize),
@@ -324,6 +331,13 @@ namespace vind
             auto& ihub = InputHub::get_instance() ;
             auto& settable = SetTable::get_instance() ;
 
+            if(pimpl->pending_exit_) {
+                if(std::chrono::steady_clock::now() >= pimpl->exit_at_) {
+                    pimpl->exit_() ;
+                    return ;
+                }
+            }
+
             // NOTE: it assume that these hwnd are fixed.
             static const auto desktop_hwnd = GetDesktopWindow() ;
             static const auto taskbar_hwnd = FindWindowA("Shell_TrayWnd", NULL) ;
@@ -437,7 +451,13 @@ namespace vind
 
         void VindEntry::handle_system_call(SystemCall systemcall) {
             if(util::enum_has_bits(systemcall, SystemCall::TERMINATE)) {
-                pimpl->exit_() ;
+                if(!pimpl->pending_exit_) {
+                    // Defer the termination briefly so the virtual command
+                    // line can be drawn once more (e.g. the command result).
+                    pimpl->pending_exit_ = true ;
+                    pimpl->exit_at_ = std::chrono::steady_clock::now() \
+                        + std::chrono::milliseconds(400) ;
+                }
             }
             if(util::enum_has_bits(systemcall, SystemCall::RECONSTRUCT)) {
                 reconstruct() ;
