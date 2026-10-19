@@ -6,6 +6,7 @@
 #include "errlogger.hpp"
 #include "keycodedef.hpp"
 #include "mode.hpp"
+#include "settable.hpp"
 #include "util/container.hpp"
 #include "util/debug.hpp"
 #include "util/def.hpp"
@@ -30,6 +31,42 @@
 
 #define SC_MAPHOOK static_cast<vind::SystemCall>(105)
 #define SC_MAPHOOK_REPRD static_cast<vind::SystemCall>(100)
+
+
+namespace
+{
+    // Tag attached to key events synthesized by win-vind itself, so the
+    // low-level hook can tell them apart from input sent by other programs.
+    constexpr ULONG_PTR SELF_INJECTED_SIG = 0x77696E64 ; // "wind"
+
+    // Decide whether an injected key event from another program should be
+    // processed like a real key. The setting takes "ignore" (default),
+    // "any", or a hex value matched against the event's dwExtraInfo.
+    bool accepts_injected_event(ULONG_PTR extra_info) {
+        using namespace vind::core ;
+
+        auto& settable = SetTable::get_instance() ;
+        if(!settable.has("injected_extra")) {
+            return false ;
+        }
+
+        const auto& setting = settable.get("injected_extra").get<std::string>() ;
+        if(setting == "any") {
+            return true ;
+        }
+        if(setting.empty() || setting == "ignore") {
+            return false ;
+        }
+
+        try {
+            return std::stoull(setting, nullptr, 0) \
+                == static_cast<unsigned long long>(extra_info) ;
+        }
+        catch(const std::exception&) {
+            return false ;
+        }
+    }
+}
 
 
 namespace vind
@@ -146,8 +183,19 @@ namespace vind
 
             auto mode = get_global_mode() ;
 
-            if(!(kbd->flags & LLKHF_INJECTED)) {
-                // The message is not generated with SendInput.
+            const bool injected = (kbd->flags & LLKHF_INJECTED) != 0 ;
+
+            // win-vind tags its own synthesized key events; never feed them
+            // back into the input pipeline.
+            const bool self_injected = injected \
+                && kbd->dwExtraInfo == SELF_INJECTED_SIG ;
+
+            // Injected events from other programs (e.g. game streaming that
+            // uses SendInput) are ignored unless the user opts in.
+            const bool accepted_injected = injected && !self_injected \
+                && accepts_injected_event(kbd->dwExtraInfo) ;
+
+            if(!injected || accepted_injected) {
                 auto state = !(w_param & KEYUP_MASK) ;
 
                 self.pimpl->lowlevel_state_[code] = state ;
@@ -476,6 +524,7 @@ namespace vind
                 in_.type       = INPUT_KEYBOARD ;
                 in_.ki.wVk     = static_cast<WORD>(key_.to_code()) ;
                 in_.ki.wScan   = static_cast<WORD>(MapVirtualKeyA(in_.ki.wVk, MAPVK_VK_TO_VSC)) ;
+                in_.ki.dwExtraInfo = SELF_INJECTED_SIG ;
             }
         } ;
 

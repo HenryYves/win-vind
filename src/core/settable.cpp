@@ -62,6 +62,8 @@ namespace vind
 
             Param("initmode", "i"),
 
+            Param("injected_extra", "ignore"),
+
             Param("jump_margin", 10),
 
             Param("keybrd_layout", ""),
