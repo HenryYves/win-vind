@@ -18,6 +18,10 @@ namespace vind
 {
     namespace core
     {
+        // Tag attached to key events synthesized by win-vind itself so the
+        // low-level hook can tell them apart from input sent by other programs.
+        constexpr ULONG_PTR SELF_INJECTED_SIG = 0x77696E64 ; // "wind"
+
         template <typename T>
         auto extended_key_flag(T key) noexcept {
             switch(static_cast<unsigned char>(key)) {
@@ -136,7 +140,7 @@ namespace vind
                         in.ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         in.ki.wScan       = static_cast<WORD>(MapVirtualKeyA(in.ki.wVk, MAPVK_VK_TO_VSC)) ;
                         in.ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(in.ki.wVk) ;
-                        in.ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        in.ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(1, &in, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -159,12 +163,12 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[1].ki.wVk         = static_cast<WORD>((begin + 1)->to_physical().to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(2, ins, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -190,17 +194,17 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[1].ki.wVk         = static_cast<WORD>((begin + 1)->to_physical().to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[2].ki.wVk         = static_cast<WORD>((begin + 2)->to_physical().to_code()) ;
                         ins[2].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[2].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[2].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(ins[2].ki.wVk) ;
-                        ins[2].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[2].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(3, ins, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -218,7 +222,7 @@ namespace vind
                             dins[i].ki.wVk         = static_cast<WORD>((begin + i)->to_physical().to_code()) ;
                             dins[i].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(dins[i].ki.wVk, MAPVK_VK_TO_VSC)) ;
                             dins[i].ki.dwFlags     = KEYEVENTF_KEYUP | extended_key_flag(dins[i].ki.wVk) ;
-                            dins[i].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                            dins[i].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                             release_virtually(*(begin + 1)) ;
                         }
@@ -283,7 +287,7 @@ namespace vind
                         in.ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         in.ki.wScan       = static_cast<WORD>(MapVirtualKeyA(in.ki.wVk, MAPVK_VK_TO_VSC)) ;
                         in.ki.dwFlags     = extended_key_flag(in.ki.wVk) ;
-                        in.ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        in.ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(1, &in, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -307,12 +311,12 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[1].ki.wVk         = static_cast<WORD>((begin + 1)->to_physical().to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(2, ins, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -338,17 +342,17 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(begin->to_physical().to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = extended_key_flag(*begin) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[1].ki.wVk         = static_cast<WORD>((begin + 1)->to_physical().to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[2].ki.wVk         = static_cast<WORD>((begin + 2)->to_physical().to_code()) ;
                         ins[2].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[2].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[2].ki.dwFlags     = extended_key_flag(ins[2].ki.wVk) ;
-                        ins[2].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[2].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         if(!SendInput(3, ins, sizeof(INPUT))) {
                             throw RUNTIME_EXCEPT("failed sending keyboard event") ;
@@ -365,7 +369,7 @@ namespace vind
                             dins[i].ki.wVk         = static_cast<WORD>((begin + i)->to_physical().to_code()) ;
                             dins[i].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(dins[i].ki.wVk, MAPVK_VK_TO_VSC)) ;
                             dins[i].ki.dwFlags     = extended_key_flag(dins[i].ki.wVk) ;
-                            dins[i].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                            dins[i].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                             press_virtually(*(begin + i)) ;
                         }
@@ -446,12 +450,12 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(phy.to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[1].ki.wVk         = ins[0].ki.wVk ;
                         ins[1].ki.wScan       = ins[0].ki.wScan ;
                         ins[1].ki.dwFlags     = ins[0].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         open_port(phy) ;
 
@@ -478,23 +482,23 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(phy1.to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         auto phy2 = (begin + 1)->to_physical() ;
                         ins[1].ki.wVk         = static_cast<WORD>(phy2.to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[2].ki.wVk         = ins[1].ki.wVk ;
                         ins[2].ki.wScan       = ins[1].ki.wScan ;
                         ins[2].ki.dwFlags     = ins[1].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[2].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[2].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[3].ki.wVk         = ins[0].ki.wVk ;
                         ins[3].ki.wScan       = ins[0].ki.wScan ;
                         ins[3].ki.dwFlags     = ins[0].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[3].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[3].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         open_port(phy1) ;
                         open_port(phy2) ;
@@ -523,34 +527,34 @@ namespace vind
                         ins[0].ki.wVk         = static_cast<WORD>(phy1.to_code()) ;
                         ins[0].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[0].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[0].ki.dwFlags     = extended_key_flag(ins[0].ki.wVk) ;
-                        ins[0].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[0].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         auto phy2 = (begin + 1)->to_physical() ;
                         ins[1].ki.wVk         = static_cast<WORD>(phy2.to_code()) ;
                         ins[1].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[1].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[1].ki.dwFlags     = extended_key_flag(ins[1].ki.wVk) ;
-                        ins[1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         auto phy3 = (begin + 2)->to_physical() ;
                         ins[2].ki.wVk         = static_cast<WORD>(phy3.to_code()) ;
                         ins[2].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(ins[2].ki.wVk, MAPVK_VK_TO_VSC)) ;
                         ins[2].ki.dwFlags     = extended_key_flag(ins[2].ki.wVk) ;
-                        ins[2].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[2].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[3].ki.wVk         = ins[2].ki.wVk ;
                         ins[3].ki.wScan       = ins[2].ki.wScan ;
                         ins[3].ki.dwFlags     = ins[2].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[3].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[3].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[4].ki.wVk         = ins[1].ki.wVk ;
                         ins[4].ki.wScan       = ins[1].ki.wScan ;
                         ins[4].ki.dwFlags     = ins[1].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[4].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[4].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         ins[5].ki.wVk         = ins[0].ki.wVk ;
                         ins[5].ki.wScan       = ins[0].ki.wScan ;
                         ins[5].ki.dwFlags     = ins[0].ki.dwFlags | KEYEVENTF_KEYUP ;
-                        ins[5].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                        ins[5].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                         open_port(phy1) ;
                         open_port(phy2) ;
@@ -569,12 +573,12 @@ namespace vind
                             dins[i].ki.wVk         = static_cast<WORD>(phy.to_code()) ;
                             dins[i].ki.wScan       = static_cast<WORD>(MapVirtualKeyA(dins[i].ki.wVk, MAPVK_VK_TO_VSC)) ;
                             dins[i].ki.dwFlags     = extended_key_flag(dins[i].ki.wVk) ;
-                            dins[i].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                            dins[i].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                             dins[size - i - 1].ki.wVk         = dins[i].ki.wVk ;
                             dins[size - i - 1].ki.wScan       = dins[i].ki.wScan ;
                             dins[size - i - 1].ki.dwFlags     = dins[i].ki.dwFlags | KEYEVENTF_KEYUP ;
-                            dins[size - i - 1].ki.dwExtraInfo = GetMessageExtraInfo() ;
+                            dins[size - i - 1].ki.dwExtraInfo = SELF_INJECTED_SIG ;
 
                             open_port(phy) ;
                         }

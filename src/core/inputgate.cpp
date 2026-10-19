@@ -35,10 +35,6 @@
 
 namespace
 {
-    // Tag attached to key events synthesized by win-vind itself, so the
-    // low-level hook can tell them apart from input sent by other programs.
-    constexpr ULONG_PTR SELF_INJECTED_SIG = 0x77696E64 ; // "wind"
-
     // Decide whether an injected key event from another program should be
     // processed like a real key. The setting takes "ignore" (default),
     // "any", or a hex value matched against the event's dwExtraInfo.
