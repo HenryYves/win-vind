@@ -19,6 +19,11 @@ namespace
 {
     using namespace vind ;
     using namespace vind::core ;
+
+    // Bound the number of digits accumulated as a prefix count so that
+    // util::extract_num never receives a value that overflows.
+    constexpr std::size_t MAX_COUNT_DIGITS = 5 ;
+
     std::string extract_numbers(
             const core::CmdUnit& input_unit,
             bool allow_zero=true) {
@@ -144,13 +149,25 @@ namespace vind
             }
 
             auto solver = get_solver(mode) ;
-            if(parse_count && solver->max_history_size() == 0) {
+
+            // A prefix count is only meaningful in the Vim-like modes.
+            // Insert and Resident mode must pass digits through as normal
+            // characters; parsing them there only grows the count buffer
+            // until std::stoi overflows.
+            const bool count_enabled = (
+                    mode == Mode::GUI_NORMAL || mode == Mode::GUI_VISUAL \
+                    || mode == Mode::EDI_NORMAL || mode == Mode::EDI_VISUAL) ;
+
+            if(parse_count && count_enabled && solver->max_history_size() == 0) {
                 // parses the sequence of head counts as the string
                 // and converts them into a number.
                 auto new_count = extract_numbers(
                         *input, pimpl->count_.size() > 0) ;
                 if(!new_count.empty()) {
-                    pimpl->count_ += new_count ;
+                    if(pimpl->count_.size() + new_count.size() \
+                            <= MAX_COUNT_DIGITS) {
+                        pimpl->count_ += new_count ;
+                    }
 
                     // Store the count number, but return as false.
                     count = util::extract_num<std::uint16_t>(pimpl->count_) ;
@@ -158,7 +175,7 @@ namespace vind
                 }
             }
 
-            if(!pimpl->count_.empty()) {
+            if(count_enabled && !pimpl->count_.empty()) {
                 if(pimpl->count_.back() != ';') {
                     pimpl->count_ += ';' ;  // Final symbol of counts
                 }

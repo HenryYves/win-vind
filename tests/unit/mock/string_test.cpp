@@ -3,6 +3,7 @@
 #include "util/disable_compiler_warning.hpp"
 
 #include <cstring>
+#include <cstdint>
 #include <string>
 
 #include "util/string.cpp"
@@ -96,7 +97,23 @@ TEST_CASE("util/string Under Fake Windows API: ") {
 
     // util::A2a
     SUBCASE("(util::A2a) normal") {
-        CHECK_EQ(A2a("HOGEEE!!!"), "hogeee!!!") ; 
+        CHECK_EQ(A2a("HOGEEE!!!"), "hogeee!!!") ;
+    }
+
+    // util::extract_num
+    SUBCASE("(util::extract_num) normal") {
+        CHECK_EQ(extract_num<std::uint16_t>("hBah0784hlk503"), 784) ;
+    }
+
+    SUBCASE("(util::extract_num) the string has no digit") {
+        CHECK_EQ(extract_num<std::uint16_t>("abc"), 0) ;
+        CHECK_EQ(extract_num<std::uint16_t>(""), 0) ;
+    }
+
+    SUBCASE("(util::extract_num) saturates at the maximum of T") {
+        CHECK_EQ(extract_num<std::uint16_t>("99999"), 65535) ;
+        CHECK_EQ(extract_num<std::uint16_t>(
+                    "999999999999999999999999"), 65535) ;
     }
 
 

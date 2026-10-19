@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <limits>
 
 namespace vind
 {
@@ -25,6 +26,8 @@ namespace vind
         //      -> std::stoi(0784)
         //      uint: 784
         //
+        // A value out of the range of T is saturated to T's maximum
+        // rather than throwing std::out_of_range.
         template <typename T>
         T extract_num(const std::string& str) {
             constexpr auto c_nums = "0123456789" ;
@@ -34,7 +37,17 @@ namespace vind
 
             auto epos = str.find_first_not_of(c_nums, bpos) ;
 
-            return static_cast<T>(std::stoi(str.substr(bpos, epos))) ;
+            try {
+                auto num = std::stoull(str.substr(bpos, epos)) ;
+                if(num > static_cast<unsigned long long>(
+                        (std::numeric_limits<T>::max)())) {
+                    return (std::numeric_limits<T>::max)() ;
+                }
+                return static_cast<T>(num) ;
+            }
+            catch(const std::out_of_range&) {
+                return (std::numeric_limits<T>::max)() ;
+            }
         }
 
         inline std::string tail(const std::string& str, std::size_t length) {
